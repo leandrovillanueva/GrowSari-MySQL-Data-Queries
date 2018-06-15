@@ -1,0 +1,21 @@
+# GrowSari-MySQL-Data-Queries
+These are the data queries that I did during my one-month intership program at GrowSari Inc. as a Product Associate(Intern)
+
+select a.username as 'Store Username',
+       s.name as 'Store Name',
+       '10' as 'Grow Pesos Amount',
+       CASE
+       WHEN lp.remarks like '%ate gigi%' THEN "Yes"
+       ELSE "No" END as 'Loaded?',
+       f.created_at as 'Date and Time Signed Up using Facebook'
+       
+from facebook_user AS f
+JOIN account AS a ON a.username = f.gs_username
+JOIN store AS s ON s.account_id = a.id
+JOIN `order` as o ON o.id = a.id
+JOIN loyalty_point as lp ON lp.account_id = s.account_id
+
+-- where date_add(curdate(), interval 1 month) and lp.remarks like '%ate gigi%'
+group by s.id
+order by f.created_at desc
+

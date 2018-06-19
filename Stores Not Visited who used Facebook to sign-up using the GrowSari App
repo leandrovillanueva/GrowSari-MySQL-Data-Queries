@@ -1,0 +1,25 @@
+select a1.display_name as 'CRO',
+        a.username as 'Store Username', 
+		s.customer_name as 'Store Name',
+	
+		if(a.username = f.gs_username, f.created_at, null) as 'Date and Time Signed Up',
+		if(a.username = f.gs_username, "Yes", "No") as 'Signed Up using Facebook',
+		s.visit_day as 'Day of Visit',
+		datediff(curdate(), max(sv.visit_start_time)) as 'Days since last visit',
+		datediff(curdate(), max(o.created_at)) as "Days since last placement of order"
+		
+from `order` as o
+		join order_status as os1 on os1.order_id=o.id
+		left join order_status as os2 on os2.order_id=o.id and os2.id>os1.id
+		join store_warehouse_shipper as sws on sws.id=o.associate_id
+		join store as s on s.id=sws.store_id
+		join account as a on a.id=s.account_id
+		join store_salesperson as sp1 on sp1.store_id=s.id
+		left join store_salesperson as sp2 on sp2.store_id=s.id and sp2.id>sp1.id
+		join account as a1 on a1.id=sp1.salesperson_account_id
+		join salesperson_visit_track as sv on sv.store_id = s.id
+		left join facebook_user as f on f.gs_username = a.username
+
+where os2.id is null and os1.status!='cancelled' and sp2.id is null
+group by s.id 
+order by 1, 4, f.created_at

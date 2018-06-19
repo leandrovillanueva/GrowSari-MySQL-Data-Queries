@@ -1,0 +1,17 @@
+select distinct(s.name) as 'Store Name',
+       count(distinct o.id) as 'Number of Complaints', 
+       count(o.id) as 'Total Number of Orders',
+       ois.reason as 'Reason',
+       sum(oit.quantity * oit.price) as 'Amount',
+       if(count(o.id)<3, "Inactive", "Active") as 'Status'
+       
+from `order` as o
+JOIN order_item as oit ON oit.order_id = o.id
+LEFT JOIN order_issue as ois ON ois.item_id = oit.id
+JOIN store_warehouse_shipper as sws ON sws.id = o.associate_id
+join store as s ON s.id = sws.store_id
+join account as a ON s.account_id = a.id 
+where date (o.delivered_by) and date_add(curdate(), interval -30 day)
+and (ois.reason like 'miss%' or ois.reason like 'dama%' or ois.reason like 'exp%') 
+group by s.name
+ORDER BY s.name

@@ -1,0 +1,16 @@
+select
+
+s.name,
+a.username,
+count(o.id) as "Number of Orders",
+if(count(o.id) <3, "Inactive", "Active") as "Active or Inactive"
+
+from `order` as o
+		join store_warehouse_shipper as sws on sws.id=o.associate_id
+		join store as s on s.id=sws.store_id
+		JOIN account a ON s.account_id = a.id
+			
+		
+where date(o.delivered_by) <= curdate() and date(o.delivered_by) >= date_add(curdate(), interval - 30 day)
+group by s.name
+order by count(o.id) asc
